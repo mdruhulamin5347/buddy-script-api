@@ -62,7 +62,7 @@ export class AuthController {
       select: {
         id: true,
         email: true,
-        fistName: true,
+        firstName: true,
         lastName: true,
         password: true,
       },

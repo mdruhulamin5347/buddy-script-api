@@ -137,7 +137,7 @@ getFeeds = asyncHandler(async (req: Request, res: Response) => {
 
 
 getFeed = asyncHandler(async (req: Request, res: Response) => {
-    const feedId = ZCuid.parse(req.params.id)
+    const {id:feedId} = ZCuid.parse(req.params)
     const feed = await prisma.feed.findUnique({
       where: {id : feedId},
       select: {
@@ -167,7 +167,7 @@ getFeed = asyncHandler(async (req: Request, res: Response) => {
 
 
   update = asyncHandler(async(req:Request, res:Response)=>{
-    const feedId = ZCuid.parse(req.params.id);
+    const {id:feedId} = ZCuid.parse(req.params);
     const validateData = ZUpdateFeed.parse(req.body)
     const feed =await prisma.feed.findUnique({
       where:{
@@ -215,7 +215,7 @@ getFeed = asyncHandler(async (req: Request, res: Response) => {
 
 
   delete = asyncHandler(async(req:Request,res:Response)=>{
-    const feedId=req.params.id;
+    const {id:feedId}=ZCuid.parse(req.params);
     const feed=await prisma.feed.findUnique({
       where:{ id:feedId }
     });
@@ -306,7 +306,7 @@ export class CommentController {
 
 
   getByFeed = asyncHandler(async (req: Request, res: Response) => {
-    const feedId = ZFeedId.parse(req.params.feedId)
+    const {feedId} = ZFeedId.parse(req.params)
     const comments = await prisma.comment.findMany({
       where: {
         feedId: feedId,
@@ -355,7 +355,7 @@ export class CommentController {
 
 
     getById = asyncHandler(async (req: Request, res: Response) => {
-    const commentId = ZCuid.parse(req.params);
+    const {id:commentId} = ZCuid.parse(req.params);
 
     const comment = await prisma.comment.findUnique({
         where: {
@@ -407,7 +407,7 @@ export class CommentController {
     update = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user.userId;
 
-    const commentId  = ZCuid.parse(req.params.id);
+    const { id : commentId }  = ZCuid.parse(req.params);
     const { content } = ZUpdateComment.parse(req.body);
 
     const comment = await prisma.comment.findUnique({
@@ -458,7 +458,7 @@ export class CommentController {
 
 
   delete = asyncHandler(async (req: Request, res: Response) => {
-    const commentId = ZCuid.parse(req.params.id);
+    const { id : commentId } = ZCuid.parse(req.params);
     const comment = await prisma.comment.findUnique({
       where: {
         id: commentId
@@ -492,7 +492,7 @@ export class CommentController {
 export class LikeController {
   toggleFeedLike = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user.userId;
-    const feedId = ZFeedId.parse(req.params.feedId);
+    const {feedId} = ZFeedId.parse(req.params);
     const existingLike = await prisma.feedLike.findUnique({
       where: {
         feedId_userId: {
@@ -560,7 +560,7 @@ export class LikeController {
 
   toggleCommentLike = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user.userId;
-    const commentId = ZCommentId.parse(req.params.commentId);
+    const {commentId} = ZCommentId.parse(req.params);
     const existingLike = await prisma.commentLike.findUnique({
       where: {
         commentId_userId: {

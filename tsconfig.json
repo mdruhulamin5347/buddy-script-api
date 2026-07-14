@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
 
-    "rootDir": "./src",
+    // "rootDir": "./src",
     "outDir": "./dist",
 
     "types": ["node"],
@@ -23,7 +23,7 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "generated"],
   "exclude": ["node_modules", "dist"]
 }
 

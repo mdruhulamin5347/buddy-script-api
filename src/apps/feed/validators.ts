@@ -51,13 +51,13 @@ export const ZUpdateFeed = z.object({
 
 
 export const ZCreateComment = z.object({
-  feedId: z.cuid2("Invalid feed id"),
+  feedId: z.cuid("Invalid feed id"),
   content: z
     .string()
     .trim()
     .min(1,"Comment cannot be empty")
     .max(2000,"Comment too long"),
-  parentId: z.cuid2("Invalid parent comment id")
+  parentId: z.cuid("Invalid parent comment id")
     .optional()
     .nullable()
 });
@@ -75,12 +75,12 @@ export const ZUpdateComment = z.object({
 
 
 export const ZFeedLike = z.object({
-  feedId: z.cuid2("Invalid feed id")
+  feedId: z.cuid("Invalid feed id")
 });
 
 
 export const ZCommentLike = z.object({
-  commentId: z.cuid2("Invalid comment id")
+  commentId: z.cuid("Invalid comment id")
 });
 
 
