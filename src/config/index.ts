@@ -28,6 +28,7 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().default('http://localhost:3000'),
   // CORS
   CORS_ORIGIN: z.string().default('*'),
+  SALT_ROUNDS: z.coerce.number().default(12),
 });
 
 const env = envSchema.parse(process.env);
@@ -65,6 +66,7 @@ const config = {
     origin: env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(','),
     credentials: true,
   },
+  saltRound : env.SALT_ROUNDS,
 
 } as const;
 

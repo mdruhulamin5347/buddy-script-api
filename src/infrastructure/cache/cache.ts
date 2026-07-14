@@ -64,6 +64,24 @@ class RedisCache {
     await this.client.del(key);
   }
 
+
+
+  async delPattern(pattern: string) {
+    const keys: string[] = [];
+
+    for await (const key of this.client.scanIterator({
+      MATCH: pattern,
+      COUNT: 100,
+    })) {
+      keys.push(...key);
+    }
+
+    if (keys.length) {
+      await this.client.sendCommand(["DEL", ...keys]);
+    }
+  }
+
+
   async exists(key: string) {
     return (await this.client.exists(key)) === 1;
   }
@@ -86,4 +104,5 @@ class RedisCache {
   }
 }
 
-export default new RedisCache();
+const cached = new RedisCache();
+export default cached;

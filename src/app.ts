@@ -7,6 +7,8 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import { rateLimiter } from './middleware/rateLimiter';
 import logger from './utils/logger';
+import feedRouter from './apps/feed/routes';
+import authRouter from './apps/auth/routes';
 
 const app = express();
 
@@ -42,8 +44,11 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
+app.use("/uploads",express.static("uploads"));
+
 // API routes
-// app.use('/api/v1', authRouter);
+app.use('/api/v1', authRouter);
+app.use('/api/v1', feedRouter);
 
 // 404 handler
 app.use(notFound);

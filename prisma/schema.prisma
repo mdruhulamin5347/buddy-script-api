@@ -11,3 +11,126 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+
+
+
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum ReactionType {
+  LIKE
+}
+
+
+model User {
+  id           String   @id @default(cuid())
+  firstName    String   @db.VarChar(80)
+  lastName     String   @db.VarChar(80)
+  email        String   @unique @db.VarChar(255)
+  password     String
+  avatar       String?
+  isActive     Boolean  @default(true)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  feeds         Feed[]
+  comments      Comment[]
+  feedLikes     FeedLike[]
+  commentLikes  CommentLike[]
+  @@index([createdAt(sort: Desc)])
+}
+
+
+
+
+model Feed {
+  id            String   @id @default(cuid())
+  content          String?  @db.Text
+  image      String?
+  visibility    Visibility @default(PUBLIC)
+  likeCount     Int @default(0)
+  commentCount  Int @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  authorId      String
+  author         User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments       Comment[]
+  likes          FeedLike[]
+
+  @@index([authorId])
+  @@index([visibility, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+
+
+
+
+
+model Comment {
+  id            String   @id @default(cuid())
+  content       String   @db.Text
+  likeCount     Int @default(0)
+  replyCount    Int @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  feedId        String
+  feed          Feed @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       Comment[] @relation("CommentReplies")
+  likes         CommentLike[]
+
+  @@index([feedId, createdAt(sort: Desc)])
+  @@index([parentId, createdAt(sort: Desc)])
+  @@index([authorId])
+}
+
+
+
+
+
+model FeedLike {
+  id          String @id @default(cuid())
+  type        ReactionType @default(LIKE)
+  createdAt   DateTime @default(now())
+
+  feedId      String
+  feed        Feed @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([feedId, userId])
+  @@index([feedId])
+  @@index([userId])
+}
+
+
+
+
+
+model CommentLike {
+  id          String @id @default(cuid())
+  type        ReactionType @default(LIKE)
+  createdAt   DateTime @default(now())
+
+  commentId   String
+  comment     Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+}

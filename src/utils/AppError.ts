@@ -32,4 +32,8 @@ export class AppError extends Error {
   static internal(message: string = 'Internal Server Error') {
     return new AppError(message, 500);
   }
+
+  static passwordMismatch(message: string = 'Password does not match') {
+    return new AppError(message, 400);
+  }
 }
