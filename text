@@ -1,0 +1,15 @@
+NODE_ENV=development
+PORT=3050
+
+JWT_SECRET=shwerthq2i34yh23uy5h23rhc54qwrlcwetreer
+JWT_REFRESH_SECRET=werwrcq32423q543q6qw4drwet234wtf3res
+
+DATABASE_URL=postgresql://neondb_owner:npg_4OzDYmaI2LiF@ep-noisy-sun-aoqvwlsj-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+REDIS_URL=rediss://default:gQAAAAAAAjkyAAIgcDI2MDNjMzdkOGExOWE0ZjVmYjcyZmIxN2EyMDU5YjIyYw@faithful-jaybird-145714.upstash.io:6379
+
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+LOGIN_RATE_LIMIT_WINDOW_MS=900000
+LOGIN_RATE_LIMIT_MAX_REQUESTS=5
+CORS_ORIGIN=http://localhost:3000
