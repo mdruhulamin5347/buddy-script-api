@@ -10,7 +10,8 @@ export const getImageUrl = (filename: string) => {
 
 export async function deleteFile(filePath: string) {
   try {
-    const fullPath = path.join(process.cwd(), filePath);
+    const relativePath = filePath.startsWith("/") ? filePath.slice(1) : filePath;
+    const fullPath = path.join(process.cwd(), relativePath);
     await fs.unlink(fullPath);
   } catch (error) {
     console.warn("Delete file failed:", error);

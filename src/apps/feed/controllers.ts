@@ -12,6 +12,11 @@ export class FeedController {
   create = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user.userId;
     const {content, visibility} = ZCreateFeed.parse(req.body);
+
+    if (!content && !req.file) {
+      throw AppError.badRequest("Feed must contain text or image");
+    }
+
     const image = req.file
         ? getImageUrl(req.file.filename)
         : null;
@@ -62,7 +67,7 @@ getFeeds = asyncHandler(async (req: Request, res: Response) => {
 
   const skip = (page - 1) * limit;
 
-  const cacheKey = `feeds:user=${req.user.userId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}}`;
+  const cacheKey = `feeds:user=${req.user.userId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
 
   const cachedData = await cached.get(cacheKey);
 
@@ -159,8 +164,13 @@ getFeed = asyncHandler(async (req: Request, res: Response) => {
       }
     });
 
+    if (!feed) {
+      throw AppError.notFound("Feed not found");
+    }
+
     res.status(200).json({
       success:true,
+      message:"Feed fetched successfully",
       data:feed
     });
   });
@@ -197,7 +207,7 @@ getFeed = asyncHandler(async (req: Request, res: Response) => {
       },
       data:{
         content:validateData.content,
-        image:validateData.image,
+        image,
         visibility:validateData.visibility
       }
     });
@@ -257,6 +267,17 @@ export class CommentController {
       throw AppError.notFound("Feed not found");
     }
 
+    if (parentId) {
+      const parentComment = await prisma.comment.findUnique({
+        where: { id: parentId },
+        select: { id: true, feedId: true }
+      });
+
+      if (!parentComment || parentComment.feedId !== feedId) {
+        throw AppError.badRequest("Invalid parent comment");
+      }
+    }
+
     const comment = await prisma.comment.create({
       data: {
         feedId,
@@ -264,7 +285,6 @@ export class CommentController {
         parentId: parentId || null,
         authorId: userId
       },
-
 
       include: {
         author: {
@@ -279,16 +299,18 @@ export class CommentController {
 
     });
 
-    await prisma.feed.update({
-      where: {
-        id: feedId
-      },
-      data: {
-        commentCount: {
-          increment: 1
-        }
-      }
-    });
+    await prisma.$transaction([
+      prisma.feed.update({
+        where: { id: feedId },
+        data: { commentCount: { increment: 1 } }
+      }),
+      ...(parentId
+        ? [prisma.comment.update({
+            where: { id: parentId },
+            data: { replyCount: { increment: 1 } }
+          })]
+        : [])
+    ]);
 
     return res.status(201).json({
       success: true,
@@ -462,6 +484,12 @@ export class CommentController {
     const comment = await prisma.comment.findUnique({
       where: {
         id: commentId
+      },
+      select: {
+        id: true,
+        authorId: true,
+        feedId: true,
+        parentId: true
       }
     });
 
@@ -473,11 +501,23 @@ export class CommentController {
       throw AppError.forbidden("You cannot delete this comment");
     }
 
-    await prisma.comment.delete({
-      where: {
-        id: commentId
-      }
-    });
+    await prisma.$transaction([
+      prisma.comment.delete({
+        where: {
+          id: commentId
+        }
+      }),
+      prisma.feed.update({
+        where: { id: comment.feedId },
+        data: { commentCount: { decrement: 1 } }
+      }),
+      ...(comment.parentId
+        ? [prisma.comment.update({
+            where: { id: comment.parentId },
+            data: { replyCount: { decrement: 1 } }
+          })]
+        : [])
+    ]);
 
     return res.status(200).json({
       success: true,

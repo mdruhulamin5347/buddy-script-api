@@ -48,7 +48,7 @@ export const validateId =
     const result = schema.safeParse(req.params);
 
     if (!result.success) {
-      throw AppError.badRequest('Invalid user ID');
+      return next(AppError.badRequest('Invalid parameter'));
     }
 
     Object.assign(req.params, result.data);

@@ -8,22 +8,13 @@ export const ZCreateFeed = z.object({
     .max(5000, "Feed content too long")
     .optional(),
 
-  image: z.url("Invalid image URL")
-    .optional(),
-
   visibility: z.enum([
       "PUBLIC",
       "PRIVATE"
     ])
     .default("PUBLIC")
 
-})
-.refine(
-  (data) => data.content || data.image,
-  {
-    message: "Feed must contain text or image"
-  }
-);
+});
 
 
 
@@ -32,21 +23,13 @@ export const ZUpdateFeed = z.object({
     .trim()
     .max(5000)
     .optional(),
-  image: z.url()
-    .optional(),
   visibility: z.enum([
       "PUBLIC",
       "PRIVATE"
     ])
     .optional()
 
-})
-.refine(
-  (data)=> data.content || data.image,
-  {
-    message:"Feed cannot be empty"
-  }
-);
+});
 
 
 
